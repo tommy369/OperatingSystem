@@ -1,0 +1,191 @@
+{\rtf1\ansi\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Courier New;}}
+{\*\generator Riched20 6.2.9200}\viewkind4\uc1 
+\pard\f0\fs22\lang1033 CSCI 402 KERNEL ASSIGNMENT - 2 \par
+README\par
+\par
+(AM SECTION)\par
+\par
+procs-README\par
+------------\par
+TEAM MEMBERS : \par
+ANUJ GUPTA \tab\tab\tab\tab\tab (anuj@usc.edu)\par
+JARIN SHAH \tab\tab\tab\tab\tab (jarinnis@usc.edu)\par
+SAYALI SAKHALKAR\tab\tab\tab\tab (sakhalka@usc.edu)\par
+SNEHA VIJAYAN\tab\tab\tab\tab\tab (snehavij@usc.edu)\par
+\par
+SCORE SPLIT: EQUAL SHARE SPLIT (25% to each team member)\par
+\par
+JUSTIFICATION:\par
+\par
+We divided the whole development of Kernel Assignment 2 among our team members.\par
+\par
+Testing was done collaboratively by all the 4 team members.\par
+\par
+RUNNING WEENIX:\par
+-------------- \par
+1. Compile Weenix :\par
+\par
+\tab $ make \par
+\par
+2. Invoke Weenix:\par
+\par
+\tab $ ./weenix -n\par
+\par
+\tab or to run Weenix under gdb, run:\par
+\par
+\tab $ ./weenix -n -d gdb\par
+\tab\par
+COMMANDS FOR USER TO EXECUTE:\par
+-----------------------------\par
+\par
+1. vfstest\tab\tab\tab -\tab all the test cases to be \tab\tab\tab\tab\tab\tab\tab\tab tested\par
+2. help\tab\tab\tab -\tab to get a list of all the \tab\tab\tab\tab\tab\tab\tab\tab available commands in the kshell\par
+3. echo\tab\tab\tab -\tab to display a line of text\par
+4. cat\tab\tab\tab -\tab to display the contents of the file\par
+5. ls\tab\tab\tab\tab -\tab to list the contents of the directory\par
+6. cd\tab\tab\tab\tab -\tab to change directory\par
+7. rm\tab\tab\tab\tab -\tab to remove file\par
+8. link\tab\tab\tab -\tab for linking files \par
+9. rmdir\tab\tab\tab -\tab to remove directory\par
+10. mkdir\tab\tab\tab -\tab to make directory\par
+11. stat\tab\tab\tab -\tab symbolic link that describes the file\par
+12. exit\tab\tab\tab -\tab to exit from kshell\par
+13. renametest \tab\tab - \tab renames a file name with other file \tab\tab\tab\tab\tab\tab name\par
+ \par
+Note: GDBWAIT=0, DRIVERS=1, and VFS=1 in Config.mk.\par
+   \par
+3.   SELF CHECKS : \par
+\tab\par
+\tab renametest :\par
+\tab\par
+\tab It checks the functions namely \b rename, do_link and \tab do_unlink\b0  in which we call multiple syscall_success() and \tab\tab syscall_fail() to ensure the working of the function \tab renametest. In syscall_success, we try renaming the file \tab\tab named old with a file named new. In syscall_fail, we try \tab renaming the file named old with other file name. But\tab\tab\tab file named old is already been renamed with new, so the \tab old file name does not exist. So, when trying to rename \tab\tab non-existent file named old, it should give error.\par
+\tab\tab\par
+4. \tab EXPLANATION OF FUNCTIONS :\par
+\par
+\tab I) namev.c:\par
+\par
+\tab\tab a) lookup (vnode_t *dir, conts char * name, size_t \tab\tab\tab len, vnode_t **result)\par
+\par
+\tab\tab This function checks if the file by name "name" under \tab\tab the directory "dir" exists or no.\par
+\par
+\tab\tab b) dir_namev (const char *pathname, size_t *namelen, \tab\tab\tab const char **name, vnode_t *base, vnode_t \tab\tab\tab\tab\tab **res_vnode)\par
+\par
+\tab\tab This function converts pathname to vnode which is \tab\tab\tab then passed to the lookup function to check whether \tab\tab\tab the file under the vnode exists or no.\par
+\par
+\tab\tab c) open_namev (const char *pathname, int flag, \tab\tab\tab\tab vnode_t **res_vnode, vnode_t *base)\par
+\tab\par
+\tab\tab This returns in res_vnode the vnode requested by \tab\tab\tab other parameters. It uses dir_namev and lookup to \tab\tab\tab find \tab the vnode of the specified vnode.\par
+\par
+\tab II) vfs_syscall.c:\tab\par
+\par
+\par
+\tab\tab a) do_read (int fd, void *buf, size_t nbytes)\par
+\tab\tab\par
+\tab\tab This function reads nbytes from buf from the \tab\tab\tab\tab specified file descriptor fd\par
+\par
+\tab\tab b) do_write (int fd, const void *buf, size_t nbytes)\par
+\tab\par
+\tab\tab This function writes nbytes to the buf using \tab\tab\tab\tab specified file decriptor fd\par
+\par
+\tab\tab c) do_close (int fd)\tab\par
+\tab\tab\tab\par
+\tab\tab This function fputs the file if it is not NULL\par
+\par
+\tab\tab d) do_dup (int fd)\par
+\tab\tab\par
+\tab\tab This function calls fget(fp) to get the refcount of \tab\tab\tab fd. Then it points to the same file_t as the given fd \par
+\par
+\tab\tab e) do_dup2 (int ofd, int nfd)\par
+\tab\tab\tab\tab\par
+\tab\tab This function is same as do_dup. If nfd is in use and \tab\tab is same as ofd then do_close() it first and then \tab\tab\tab return new file decriptor\par
+\par
+\tab\tab f) do_mknod (const char *path, int mode, unsigned \tab\tab\tab devid)\par
+\par
+\tab\tab This function creates a special file of the type \tab\tab\tab specified by mode at the location specified by path\par
+\par
+\tab\tab g) do_mkdir ( const char *path )\tab\par
+\par
+\tab\tab This function finds the vnode of the path specified \tab\tab\tab using the dir_namev function and then checks the \tab\tab\tab lookup function to verify that directory does not \tab\tab\tab already exist and then calls dir's mkdir vn_ops\par
+\par
+\tab\tab h) do_rmdir ( const char *path )\par
+\par
+\tab\tab This function finds the vnode of the directory to be \tab\tab\tab removed and then calls dir's rmdir v_op\par
+ \par
+\tab\tab i) do_unlink ( const char *path )\par
+\par
+\tab\tab This function is for removing files. Its \tab\tab\tab\tab\tab functionality is same as rm_dir\par
+\par
+\tab\tab j) do_link (const char *from, const char *to)\par
+\par
+\tab\tab This function links from and to with the help of \tab\tab\tab open_namev(from) and dir_namev(to)\par
+\par
+\tab\tab k) do_rename ( const char *oldname, const char \tab\tab\tab\tab *newname )\par
+\par
+\tab\tab This function links the new name with old name and \tab\tab\tab then unlinks old name\par
+\par
+\tab\tab l) do_chdir ( const char *path )\par
+\par
+\tab\tab This function changes the named directory to current \tab\tab\tab working directory \par
+\par
+\tab\tab m) do_getdent ( int fd, struct dirent *dirp)\par
+\par
+\tab\tab This function calls the readdir f_op on the given fd \tab\tab\tab filling in the given dirent _t\par
+\tab\par
+\tab\tab n) do_lseek ( int fd, int offset, int whence )\par
+\par
+\tab\tab This function modifies fpos according to offset and \tab\tab\tab whence\par
+\tab\par
+\tab\tab r) do_stat ( const char *path, struct stat *buf ) \tab\par
+\par
+\tab\tab This function finds the vnode of the specified path \tab\tab\tab using dir_namev function and then calls the stat \tab\tab\tab function \par
+\par
+\tab\par
+\tab III) open.c\par
+\par
+\tab a) do_open(const char *filename, int oflags)\par
+\par
+\tab\tab It gets the next empty file descriptor, calls fget to \tab\tab get a fresh file_t. It saves it in the \tab\tab\tab\tab\tab file_descriptor table and saves the mode and sets it. \tab\tab Use open_namev to get the vnode for the file_t. It \tab\tab\tab then fills the the fields of file_t and returns new \tab\tab\tab fd.\par
+\par
+\tab IV) vnode.c\par
+\par
+\tab a) special_file_read(vnode_t *file, off_t offset, void \tab\tab\tab *buf, size_t count)\par
+\tab\tab\par
+\tab\tab In this function, we check if the file is byte \tab\tab\tab\tab device, then find file's bytedev_t and call read on \tab\tab\tab it. If the file is block device then it returns an \tab\tab\tab errror -ENOTSUP\par
+\par
+\tab b) special_file_write(vnode_t *file, off_t offset, const \tab\tab\tab void * buf, size_t count)\tab\tab\par
+\par
+\tab\tab In this function, we check if the file is byte \tab\tab\tab\tab device, then find file's bytedev_t and call write on \tab\tab\tab it. If the file is block device then it returns an \tab\tab\tab errror -ENOTSUP\tab\tab\tab\par
+\tab\tab\par
+5. TEST CASES:\par
+\par
+\tab a) vfstest\par
+\par
+6. DOCUMENTATION OF HOW EVERY CODE PATH IS EXERCISED (how all the functions are called):\par
+
+\pard ---------------------------------------------------\par
+\par
+1.  do_open():\tab\tab  \tab  \tab          vfstest.c \tab\tab     called by vfstest_open() -----> ksys_open\par
+2.  open_namev():\tab\tab              vfstest.c\tab\tab\tab called by do_open() \tab\par
+3.  dir_namev():\tab\tab              vfstest.c\tab\tab\tab called by open_namev()\par
+4.  lookup():\tab\tab              \tab  vfstest.c  \tab\tab called by dir_namev()\par
+5.  do_read():\tab\tab              \tab  vfstest.c\tab\tab\tab called by vfstest_read() -----> ksys_read\par
+6.  do_write():\tab\tab              \tab  vfstest.c\tab\tab\tab called by vfstest_stat() -----> ksys_write\par
+7.  do_close():\tab\tab              \tab  vfstest.c\tab\tab\tab called by vfstest_stat() -----> ksys_close\par
+8.  do_dup():\tab\tab          \tab\tab  vfstest.c\tab\tab     called by vfstest_fd() ------> ksys_dup\par
+9.  do_dup2():\tab\tab          \tab\tab  vfstest.c\tab\tab     called by vfstest_fd() ------> ksys_dup2\par
+10. do_mknod():\tab\tab\tab          \tab  kmain.c\tab\tab\tab called by idleproc_run()\par
+11. do_mkdir():\tab\tab\tab              vfstest.c\tab\tab\tab called by vfstest_fd() ------> ksys_mkdir\par
+12. do_rmdir():\tab\tab\tab              vfstest.c\tab     \tab called by vfstest_open() ------> ksys_rmdir\par
+13. do_unlink():\tab\tab\tab          vfstest.c\tab     \tab called by vfstest_open() ------> ksys_unlink\par
+14. do_chdir(): \tab\tab          \tab  vfstest.c\tab\tab     called by vfstest_open() ------> ksys_chdir\par
+15. do_getdent(): \tab\tab          \tab  vfstest.c\tab\tab\tab called by vfstest_getdents() -----> ksys_getdent\par
+16. do_lseek(): \tab\tab          \tab  vfstest.c\tab\tab\tab called by vfstest_getdents() -----> ksys_lseek\par
+17. do_stat():\tab\tab\tab\tab\tab\tab  vfstest.c\tab\tab     called by vfstest_chdir() -----> ksys_stat\par
+18. special_file_write(): \tab          vfstest.c\tab\tab\tab called after kshell is created\par
+19. special_file_read():\tab          faber_test.c\tab\tab called after kshell is created\par
+\tab\tab\par
+\par
+
+\pard\par
+}
+ 
